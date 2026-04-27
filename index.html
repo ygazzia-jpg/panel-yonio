@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Panel Yonio</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f6fa; color: #1a1a2e; font-size: 14px; }
+  .page { display: none; padding: 16px 16px 90px; }
+  .page.active { display: block; }
+  .header { background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; border-radius: 12px; padding: 20px; margin-bottom: 12px; text-align: center; }
+  .header h1 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+  .header p { opacity: 0.7; font-size: 13px; }
+  .home-card { border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; color: white; cursor: pointer; }
+  .home-card-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: white; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+  .home-card-sub { font-size: 12px; color: rgba(255,255,255,0.75); }
+  .home-card-arrow { font-size: 18px; opacity: 0.6; }
+  .card-green { background: linear-gradient(135deg, #1b4332, #2d6a4f); }
+  .card-teal { background: linear-gradient(135deg, #004d40, #00796b); }
+  .tc-values { display: flex; gap: 8px; margin-top: 4px; }
+  .tc-item { flex: 1; background: rgba(255,255,255,0.12); border-radius: 8px; padding: 8px 10px; text-align: center; }
+  .tc-label { font-size: 10px; opacity: 0.75; margin-bottom: 3px; }
+  .tc-amount { font-size: 17px; font-weight: 800; }
+  .tc-item.promedio { background: rgba(255,255,255,0.22); }
+  .proj-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; margin-bottom: 12px; background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .back-btn { background: #f0f0f0; border: none; border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer; color: #555; flex-shrink: 0; }
+  .proj-header-icon { font-size: 24px; }
+  .proj-header-title { font-weight: 800; font-size: 16px; }
+  .proj-header-sub { font-size: 12px; color: #999; }
+  .section { background: white; border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #999; margin-bottom: 10px; }
+  .stats-row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .stat-card { flex: 1; background: #f0faf4; border-radius: 8px; padding: 10px; text-align: center; }
+  .stat-card .stat-val { font-size: 14px; font-weight: 800; color: #2d6a4f; }
+  .stat-card .stat-label { font-size: 10px; color: #888; margin-top: 2px; }
+  .expense-row { display: flex; align-items: center; padding: 9px 0; border-bottom: 1px solid #f5f5f5; gap: 6px; }
+  .expense-row:last-child { border-bottom: none; }
+  .expense-left { flex: 1; min-width: 0; }
+  .expense-name { color: #333; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .expense-date { font-size: 11px; color: #bbb; margin-top: 1px; }
+  .expense-right { text-align: right; flex-shrink: 0; }
+  .expense-amount { font-weight: 700; color: #2d6a4f; font-size: 13px; }
+  .expense-usd { font-size: 11px; color: #999; }
+  .del-btn { background: none; border: none; cursor: pointer; font-size: 18px; color: #ffcdd2; padding: 6px; border-radius: 6px; flex-shrink: 0; }
+  .del-btn:active { color: #e53935; background: #fce4ec; }
+  .edit-btn { background: none; border: none; cursor: pointer; font-size: 16px; color: #b0bec5; padding: 6px; border-radius: 6px; flex-shrink: 0; }
+  .edit-btn:active { color: #1565c0; background: #e3f2fd; }
+  .total-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0 0; margin-top: 8px; border-top: 2px solid #e0e0e0; font-weight: 700; }
+  .total-ars { color: #2d6a4f; font-size: 15px; }
+  .total-usd { color: #888; font-size: 12px; margin-top: 2px; }
+  .folder-card { background: white; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 14px; cursor: pointer; }
+  .folder-icon { font-size: 28px; flex-shrink: 0; }
+  .folder-info { flex: 1; }
+  .folder-name { font-weight: 700; font-size: 15px; color: #1a1a2e; }
+  .folder-desc { font-size: 12px; color: #999; margin-top: 2px; }
+  .arrow { color: #ccc; font-size: 18px; }
+  .project-card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 14px; cursor: pointer; }
+  .project-icon { width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .icon-green{background:#e8f5e9}.icon-cyan{background:#e0f7fa}.icon-brown{background:#efebe9}.icon-blue{background:#e3f2fd}.icon-purple{background:#f3e5f5}
+  .project-info { flex: 1; }
+  .project-name { font-weight: 700; font-size: 15px; color: #1a1a2e; }
+  .project-desc { font-size: 12px; color: #999; }
+  .status-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; }
+  .status-active { background: #e8f5e9; color: #2e7d32; }
+  .status-planning { background: #e3f2fd; color: #1565c0; }
+  .fab { position: fixed; bottom: 28px; right: 22px; width: 56px; height: 56px; border-radius: 50%; background: #e53935; color: white; font-size: 32px; line-height: 56px; text-align: center; cursor: pointer; box-shadow: 0 4px 16px rgba(229,57,53,0.45); border: none; z-index: 100; display: none; }
+  .fab.visible { display: block; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: flex-end; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: white; border-radius: 20px 20px 0 0; padding: 24px 20px 36px; width: 100%; max-width: 480px; animation: slideUp 0.22s ease; }
+  @keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-title { font-size: 17px; font-weight: 800; color: #1a1a2e; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; }
+  .modal-close { background: #f0f0f0; border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 17px; cursor: pointer; color: #555; }
+  .form-row { margin-bottom: 13px; }
+  .form-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: #888; margin-bottom: 5px; display: block; }
+  .form-input { width: 100%; border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 10px 12px; font-size: 16px; font-family: inherit; color: #1a1a2e; }
+  .form-input:focus { outline: none; border-color: #e53935; }
+  .form-select { width: 100%; border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 10px 12px; font-size: 16px; font-family: inherit; color: #1a1a2e; background: white; }
+  .form-row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 13px; }
+  .tc-preview { font-size: 12px; color: #888; margin-top: -8px; margin-bottom: 13px; }
+  .tc-preview strong { color: #2d6a4f; }
+  .btn-submit { width: 100%; background: #e53935; color: white; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 800; cursor: pointer; }
+  .btn-submit:disabled { background: #aaa; }
+  .loading-msg { text-align: center; padding: 30px; color: #aaa; font-size: 13px; }
+  .empty-state { text-align: center; padding: 30px 16px; color: #bbb; }
+  .empty-state .empty-icon { font-size: 36px; margin-bottom: 10px; }
+  .empty-state p { font-size: 13px; }
+  .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #40916c; display: inline-block; margin-left: 6px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1b4332; color: white; padding: 10px 22px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 300; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="page-home" class="page active">
+  <div class="header">
+    <h1>👋 Hola, Yonio</h1>
+    <p>Tus proyectos y emprendimientos <span class="sync-dot"></span></p>
+  </div>
+  <div class="home-card card-green">
+    <div class="home-card-title">💵 Dólar Blue <span style="font-size:10px;opacity:0.6;font-weight:400;text-transform:none;letter-spacing:0">27/04/2026</span></div>
+    <div class="tc-values">
+      <div class="tc-item"><div class="tc-label">Compra</div><div class="tc-amount">$1.400</div></div>
+      <div class="tc-item promedio"><div class="tc-label">Promedio</div><div class="tc-amount">$1.410</div></div>
+      <div class="tc-item"><div class="tc-label">Venta</div><div class="tc-amount">$1.420</div></div>
+    </div>
+  </div>
+  <div class="home-card card-teal" onclick="go('empresas')">
+    <div class="home-card-title">🏢 Empresas y Proyectos <span class="home-card-arrow">›</span></div>
+    <div class="home-card-sub">Servicios · Argensal · Uruguay · Amnesia · Sinsacate</div>
+  </div>
+</div>
+
+<!-- EMPRESAS -->
+<div id="page-empresas" class="page">
+  <div class="proj-header">
+    <button class="back-btn" onclick="go('home')">← Inicio</button>
+    <span class="proj-header-icon">🏢</span>
+    <div><div class="proj-header-title">Empresas y Proyectos</div></div>
+  </div>
+  <div class="project-card" onclick="go('servicios')"><div class="project-icon icon-green">🌿</div><div class="project-info"><div class="project-name">Servicios a Domicilio</div><div class="project-desc">Jardinería · Lavado de autos</div></div><span class="status-badge status-active">Activo</span><div class="arrow">›</div></div>
+  <div class="project-card" onclick="go('argensal')"><div class="project-icon icon-cyan">🧂</div><div class="project-info"><div class="project-name">Argensal</div><div class="project-desc">Venta de sal · Argentina</div></div><span class="status-badge status-active">Activo</span><div class="arrow">›</div></div>
+  <div class="project-card" onclick="go('uruguay')"><div class="project-icon icon-blue">🌊</div><div class="project-info"><div class="project-name">Uruguay — Beatrix SAS</div><div class="project-desc">Exportación sal · Charrusal</div></div><span class="status-badge status-active">Activo</span><div class="arrow">›</div></div>
+  <div class="project-card" onclick="go('amnesia')"><div class="project-icon icon-purple">🎲</div><div class="project-info"><div class="project-name">Amnesia</div><div class="project-desc">Juego de mesa · Mercado Libre</div></div><span class="status-badge status-active">Activo</span><div class="arrow">›</div></div>
+  <div class="project-card" onclick="go('sinsacate')"><div class="project-icon icon-brown">🏡</div><div class="project-info"><div class="project-name">Proyecto Sinsacate</div><div class="project-desc">Terreno · Planos listos</div></div><span class="status-badge status-planning">Planificando</span><div class="arrow">›</div></div>
+</div>
+
+<!-- SERVICIOS -->
+<div id="page-servicios" class="page">
+  <div class="proj-header">
+    <button class="back-btn" onclick="go('empresas')">← Empresas</button>
+    <span class="proj-header-icon">🌿</span>
+    <div><div class="proj-header-title">Servicios a Domicilio</div><div class="proj-header-sub">Jardinería · Lavado de autos</div></div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-val" id="sv-count">—</div><div class="stat-label">Gastos</div></div>
+    <div class="stat-card"><div class="stat-val" id="sv-usd">—</div><div class="stat-label">Total invertido</div></div>
+  </div>
+  <div class="folder-card" onclick="go('gastos-sv')">
+    <span class="folder-icon">💸</span>
+    <div class="folder-info"><div class="folder-name">Gastos</div><div class="folder-desc" id="sv-gastos-desc">Cargando...</div></div>
+    <div class="arrow">›</div>
+  </div>
+</div>
+
+<!-- GASTOS SERVICIOS -->
+<div id="page-gastos-sv" class="page">
+  <div class="proj-header">
+    <button class="back-btn" onclick="go('servicios')">← Servicios</button>
+    <span class="proj-header-icon">💸</span>
+    <div><div class="proj-header-title">Gastos</div><div class="proj-header-sub">Servicios a Domicilio</div></div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-val" id="g-count">—</div><div class="stat-label">Registros</div></div>
+    <div class="stat-card"><div class="stat-val" id="g-usd">—</div><div class="stat-label">Total</div></div>
+    <div class="stat-card"><div class="stat-val">$1.410</div><div class="stat-label">TC Blue</div></div>
+  </div>
+  <div class="section" id="gastos-list">
+    <div class="loading-msg">Cargando gastos...</div>
+  </div>
+</div>
+
+<!-- ARGENSAL -->
+<div id="page-argensal" class="page">
+  <div class="proj-header"><button class="back-btn" onclick="go('empresas')">← Empresas</button><span class="proj-header-icon">🧂</span><div><div class="proj-header-title">Argensal</div></div></div>
+  <div class="empty-state"><div class="empty-icon">🧂</div><p>Próximamente.</p></div>
+</div>
+<div id="page-uruguay" class="page">
+  <div class="proj-header"><button class="back-btn" onclick="go('empresas')">← Empresas</button><span class="proj-header-icon">🌊</span><div><div class="proj-header-title">Uruguay — Beatrix SAS</div></div></div>
+  <div class="empty-state"><div class="empty-icon">🌊</div><p>Próximamente.</p></div>
+</div>
+<div id="page-amnesia" class="page">
+  <div class="proj-header"><button class="back-btn" onclick="go('empresas')">← Empresas</button><span class="proj-header-icon">🎲</span><div><div class="proj-header-title">Amnesia</div></div></div>
+  <div class="empty-state"><div class="empty-icon">🎲</div><p>Próximamente.</p></div>
+</div>
+<div id="page-sinsacate" class="page">
+  <div class="proj-header"><button class="back-btn" onclick="go('empresas')">← Empresas</button><span class="proj-header-icon">🏡</span><div><div class="proj-header-title">Proyecto Sinsacate</div></div></div>
+  <div class="empty-state"><div class="empty-icon">🏡</div><p>Próximamente.</p></div>
+</div>
+
+<button class="fab" id="fab-btn" onclick="openModal()">+</button>
+
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-title">
+      <span>➕ Nuevo gasto</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Concepto</label>
+      <input class="form-input" id="f-concepto" placeholder="Ej: Guantes de trabajo" autocomplete="off">
+    </div>
+    <div class="form-row-2col">
+      <div><label class="form-label">Fecha</label><input class="form-input" id="f-fecha" placeholder="27/04" autocomplete="off"></div>
+      <div><label class="form-label">Monto ARS</label><input class="form-input" id="f-monto" type="number" placeholder="0" oninput="previewUSD()"></div>
+    </div>
+    <div class="tc-preview" id="tc-preview">TC $1.410 · USD equivalente: <strong>—</strong></div>
+    <div class="form-row-2col">
+      <div><label class="form-label">Categoría</label>
+        <select class="form-select" id="f-cat">
+          <option>Herramientas</option><option>Maquinaria</option><option>Vehículo</option><option>Insumos</option><option>Publicidad</option><option>Otro</option>
+        </select>
+      </div>
+      <div><label class="form-label">Pago</label>
+        <select class="form-select" id="f-pago">
+          <option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>MercadoPago</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-submit" id="btn-submit" onclick="submitGasto()">Agregar gasto</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBRw-Ib4_R16v_6sfR5MC1KfdJGt-_yFuU",
+    authDomain: "panel-yonio.firebaseapp.com",
+    projectId: "panel-yonio",
+    storageBucket: "panel-yonio.firebasestorage.app",
+    messagingSenderId: "811356085764",
+    appId: "1:811356085764:web:74a24fb6bb77e0a3dedf51"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const TC = 1410;
+  let gastos = [];
+  let editingId = null;
+
+  function fmt(n) { return Math.round(n).toLocaleString('es-AR'); }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  window.go = function(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    window.scrollTo(0, 0);
+    document.getElementById('fab-btn').classList.toggle('visible', page === 'gastos-sv');
+  };
+
+  window.previewUSD = function() {
+    const m = parseFloat(document.getElementById('f-monto').value) || 0;
+    document.getElementById('tc-preview').innerHTML = 'TC $1.410 · USD equivalente: <strong>' + (m > 0 ? '~USD ' + fmt(Math.round(m/TC)) : '—') + '</strong>';
+  };
+
+  window.openModal = function() {
+    editingId = null;
+    document.querySelector('.modal-title span').textContent = '➕ Nuevo gasto';
+    document.getElementById('btn-submit').textContent = 'Agregar gasto';
+    document.getElementById('f-concepto').value = '';
+    document.getElementById('f-monto').value = '';
+    document.getElementById('f-fecha').value = '';
+    document.getElementById('f-cat').selectedIndex = 0;
+    document.getElementById('f-pago').selectedIndex = 0;
+    document.getElementById('tc-preview').innerHTML = 'TC $1.410 · USD equivalente: <strong>—</strong>';
+    document.getElementById('modal-overlay').classList.add('open');
+    setTimeout(() => document.getElementById('f-concepto').focus(), 150);
+  };
+
+  window.editGasto = function(id) {
+    const g = gastos.find(x => x.id === id);
+    if (!g) return;
+    editingId = id;
+    document.querySelector('.modal-title span').textContent = '✏️ Editar gasto';
+    document.getElementById('btn-submit').textContent = 'Guardar cambios';
+    document.getElementById('f-concepto').value = g.concepto || '';
+    document.getElementById('f-monto').value = g.monto || '';
+    document.getElementById('f-fecha').value = g.fecha || '';
+    const catSel = document.getElementById('f-cat');
+    for (let i = 0; i < catSel.options.length; i++) { if (catSel.options[i].value === g.cat) { catSel.selectedIndex = i; break; } }
+    const pagoSel = document.getElementById('f-pago');
+    for (let i = 0; i < pagoSel.options.length; i++) { if (pagoSel.options[i].value === g.pago) { pagoSel.selectedIndex = i; break; } }
+    window.previewUSD();
+    document.getElementById('modal-overlay').classList.add('open');
+    setTimeout(() => document.getElementById('f-concepto').focus(), 150);
+  };
+
+  window.closeModal = function() { document.getElementById('modal-overlay').classList.remove('open'); };
+  window.closeModalOutside = function(e) { if (e.target === document.getElementById('modal-overlay')) window.closeModal(); };
+
+  window.submitGasto = async function() {
+    const concepto = document.getElementById('f-concepto').value.trim();
+    const fecha = document.getElementById('f-fecha').value.trim() || 'Sin fecha';
+    const monto = parseFloat(document.getElementById('f-monto').value) || 0;
+    const cat = document.getElementById('f-cat').value;
+    const pago = document.getElementById('f-pago').value;
+    if (!concepto || monto <= 0) {
+      if (!concepto) document.getElementById('f-concepto').style.borderColor = '#e53935';
+      if (monto <= 0) document.getElementById('f-monto').style.borderColor = '#e53935';
+      return;
+    }
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+    try {
+      if (editingId) {
+        // EDITAR gasto existente
+        await updateDoc(doc(db, 'gastos_servicios', editingId), { concepto, fecha, monto, cat, pago });
+        const idx = gastos.findIndex(g => g.id === editingId);
+        if (idx !== -1) gastos[idx] = { ...gastos[idx], concepto, fecha, monto, cat, pago };
+        showToast('✅ Gasto actualizado');
+      } else {
+        // NUEVO gasto
+        const docRef = await addDoc(collection(db, 'gastos_servicios'), {
+          concepto, fecha, monto, tc: TC, cat, pago, timestamp: Date.now()
+        });
+        gastos.push({ id: docRef.id, concepto, fecha, monto, tc: TC, cat, pago, timestamp: Date.now() });
+        showToast('✅ Gasto guardado en Firebase');
+      }
+      renderGastos();
+      window.closeModal();
+    } catch(e) {
+      showToast('❌ Error: ' + e.message);
+    }
+    btn.disabled = false; btn.textContent = editingId ? 'Guardar cambios' : 'Agregar gasto';
+    editingId = null;
+  };
+
+  window.deleteGasto = async function(id) {
+    if (!confirm('¿Eliminar este gasto?')) return;
+    try {
+      await deleteDoc(doc(db, 'gastos_servicios', id));
+      gastos = gastos.filter(g => g.id !== id);
+      renderGastos();
+      showToast('🗑️ Gasto eliminado');
+    } catch(e) {
+      showToast('❌ Error al eliminar');
+    }
+  };
+
+  function renderGastos() {
+    const totalARS = gastos.reduce((s, g) => s + g.monto, 0);
+    const totalUSD = Math.round(totalARS / TC);
+    const count = gastos.length;
+    document.getElementById('g-count').textContent = count;
+    document.getElementById('g-us
